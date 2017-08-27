@@ -25,7 +25,7 @@ contract Splitter {
 	    SplitRegistered(msg.sender, beneficiaryOne, beneficiaryTwo);
 	}
 
-	function () payable {
+	function sendSplit() payable {
 	    require(participants[msg.sender]);
 	    require(msg.value > 0);
 

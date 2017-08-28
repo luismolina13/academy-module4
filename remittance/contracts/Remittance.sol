@@ -1,8 +1,8 @@
 pragma solidity ^0.4.13;
 
 contract Remittance {
-    mapping (address => bytes32) passwords;
-    mapping (address => bool) hasPassword;
+  mapping (address => bytes32) passwords;
+  mapping (address => bool) hasPassword;
 	mapping (address => mapping(bytes32 => bool)) usedPasswords;
 	mapping (address => uint) balances;
 
@@ -10,7 +10,7 @@ contract Remittance {
 	event Deposit(address from, uint oldBalance, uint newBalance);
 	event Withdraw(address from, address to, uint amount);
 
-	function setPasswords(bytes32 password) {
+	function setPassword(bytes32 password) {
 	    require(!usedPasswords[msg.sender][password]);
 
 	    passwords[msg.sender] = password;

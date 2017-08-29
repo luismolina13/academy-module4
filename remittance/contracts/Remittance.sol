@@ -4,7 +4,7 @@ contract Remittance {
   mapping (address => bytes32) passwords;
   mapping (address => bool) hasPassword;
 	mapping (address => mapping(bytes32 => bool)) usedPasswords;
-	mapping (address => uint) balances;
+	mapping (address => uint) public balances;
 
 	event PasswordSet(address from, bytes32 password);
 	event Deposit(address from, uint oldBalance, uint newBalance);

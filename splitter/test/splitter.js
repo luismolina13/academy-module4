@@ -8,21 +8,24 @@ contract('Splitter', function(accounts) {
     var bob = accounts[1];
     var carol = accounts[2];
 
-    var amount = web3.toWei(20);
-    var expectedBalanceBob = web3.eth.getBalance(bob).toNumber() + amount / 2;
-    var expectedBalanceCarol = web3.eth.getBalance(carol).toNumber() + amount / 2;
+    var amount = web3.toWei(10);
+    var expectedBalanceBob = amount / 2;
 
     return Splitter.deployed().then(function(instance) {
       splitter = instance;
-      return splitter.registerSplit(bob, carol, {from: alice});
-    }).then(function(txInfo) {
-      return splitter.sendSplit({
+      return splitter.registerSplit(bob, carol, {
         from: alice,
         value: amount
       });
     }).then(function(txInfo) {
-      assert.equal(web3.eth.getBalance(bob).toNumber(), expectedBalanceBob);
-      assert.equal(web3.eth.getBalance(carol).toNumber(), expectedBalanceCarol);
+      return splitter.balances(bob, {from: alice});
+    }).then(function(balance) {
+      assert.equal(balance.toNumber(), amount / 2);
+      return splitter.withdraw({from: bob});
+    }).then(function(txInfo) {
+      return splitter.balances(bob, {from: alice});
+    }).then(function(balance) {
+      assert.equal(balance.toNumber(), 0);
     });
   });
 });

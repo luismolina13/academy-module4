@@ -2,40 +2,36 @@ pragma solidity ^0.4.6;
 
 contract Splitter {
 
-    mapping (address => Split) splitMetadata;
-    mapping (address => bool) participants;
+  mapping (address => uint) public balances;
 
-    struct Split {
-        address beneficiaryOne;
-        address beneficiaryTwo;
+  event SplitRegistered(address from, address one, address two, uint amountOne, uint amountTwo);
+  event EtherSplit(address from, uint amount);
+
+  function registerSplit(address beneficiaryOne, address beneficiaryTwo) payable {
+    require(msg.value > 0);
+
+    uint amountOne = msg.value / 2;
+    uint amountTwo = amountOne;
+    uint even = msg.value % 2;
+    if (even == 1) {
+      amountTwo += 1;
     }
 
-	event SplitRegistered(address from, address one, address two);
-	event EtherSplit(address from, address one, address two, uint amount);
+    assert(amountOne + amountTwo == msg.value);
 
-	function registerSplit(address beneficiaryOne, address beneficiaryTwo) {
+    balances[beneficiaryOne] += amountOne;
+    balances[beneficiaryTwo] += amountTwo;
 
-	    Split memory split;
-        split.beneficiaryOne = beneficiaryOne;
-        split.beneficiaryTwo = beneficiaryTwo;
+    SplitRegistered(msg.sender, beneficiaryOne, beneficiaryTwo, amountOne, amountTwo);
+  }
 
-	    splitMetadata[msg.sender] = split;
-	    participants[msg.sender] = true;
+  function withdraw() {
+    require(balances[msg.sender] > 0);
 
-	    SplitRegistered(msg.sender, beneficiaryOne, beneficiaryTwo);
-	}
+    uint amount = balances[msg.sender];
+    msg.sender.transfer(amount);
+    balances[msg.sender] = 0;
 
-	function sendSplit() payable {
-	    require(participants[msg.sender]);
-	    require(msg.value > 0);
-
-	    uint amount = msg.value / 2;
-	    Split memory split = splitMetadata[msg.sender];
-
-	    split.beneficiaryOne.transfer(amount);
-	    split.beneficiaryTwo.transfer(amount);
-
-	    EtherSplit(msg.sender, split.beneficiaryOne, split.beneficiaryTwo,
-	        amount);
-	}
+    EtherSplit(msg.sender, amount);
+  }
 }
